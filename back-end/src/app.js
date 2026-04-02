@@ -45,7 +45,7 @@ app.use(helmet());
 // Enable CORS (Allow frontend access)
 app.use(
   cors({
-    origin: "https://smartwds-frontend.vercel.app",
+    origin: "https://smartwds-frontend-bker.vercel.app",
     credentials: true,
   })
 );
