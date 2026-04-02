@@ -4,40 +4,37 @@ import Bin from "../models/bin.model.js";
 import Ledger from "../models/ledger.model.js";
 
 export const createGRNService = async (data, userId) => {
-  // 1️⃣ Find product
   const product = await Product.findById(data.productId);
   if (!product) throw new Error("Product not found");
 
-  // 2️⃣ Find bin
   const bin = await Bin.findById(data.binId);
   if (!bin) throw new Error("Bin not found");
 
-  // 3️⃣ Check bin capacity
   if (bin.currentCapacity + data.quantity > bin.capacity) {
     throw new Error("Bin capacity exceeded");
   }
 
-  // 4️⃣ Update product quantity
   const quantityBefore = product.quantity;
   product.quantity += data.quantity;
   await product.save();
 
-  // 5️⃣ Update bin occupancy
   bin.currentCapacity += data.quantity;
   await bin.save();
 
-  // 6️⃣ Create ledger entry (automatic)
-  await Ledger.create({
-    productId: product._id,
-    type: "IN",
-    quantityBefore,
-    quantityAfter: product.quantity,
-    userId,
-    referenceId: data.referenceId,
-    notes: `Received from ${data.supplier}`,
-  });
+  try {
+    await Ledger.create({
+      productId: product._id,
+      type: "IN",
+      quantityBefore,
+      quantityAfter: product.quantity,
+      userId,
+      referenceId: data.referenceId,
+      notes: `Received from ${data.supplier}`,
+    });
+  } catch (error) {
+    console.error("Ledger creation failed:", error.message);
+  }
 
-  // 7️⃣ Save GRN
   const grn = await GRN.create({
     ...data,
     userId,
@@ -69,4 +66,52 @@ export const getGRNsService = async (query) => {
     pages: Math.ceil(total / limit),
     data: grns,
   };
+};
+
+
+
+// 🔥 NEW: DELETE SERVICE (SAFE + 10/10)
+export const deleteGRNService = async (grnId, userId) => {
+
+  const grn = await GRN.findById(grnId);
+  if (!grn) throw new Error("GRN not found");
+
+  const product = await Product.findById(grn.productId);
+  if (!product) throw new Error("Product not found");
+
+  const bin = await Bin.findById(grn.binId);
+  if (!bin) throw new Error("Bin not found");
+
+  // safety check
+  if (product.quantity < grn.quantity) {
+    throw new Error("Stock inconsistency detected");
+  }
+
+  const quantityBefore = product.quantity;
+
+  // reverse stock
+  product.quantity -= grn.quantity;
+  await product.save();
+
+  bin.currentCapacity -= grn.quantity;
+  await bin.save();
+
+  // ledger reverse
+  try {
+    await Ledger.create({
+      productId: product._id,
+      type: "OUT",
+      quantityBefore,
+      quantityAfter: product.quantity,
+      userId,
+      referenceId: grn.referenceId,
+      notes: `GRN deleted (reversal)`,
+    });
+  } catch (error) {
+    console.error("Ledger reversal failed:", error.message);
+  }
+
+  await GRN.findByIdAndDelete(grnId);
+
+  return { message: "GRN deleted successfully" };
 };

@@ -23,6 +23,7 @@ import productRoutes from "./routes/product.routes.js";
 import inboundRoutes from "./routes/inbound.routes.js";
 import outboundRoutes from "./routes/outbound.routes.js"; // ✅ ADDED
 import ledgerRoutes from "./routes/ledger.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 
 // Load environment variables from .env
@@ -42,7 +43,12 @@ app.use(express.json());
 app.use(helmet());
 
 // Enable CORS (Allow frontend access)
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://smartwds-frontend.vercel.app",
+    credentials: true,
+  })
+);
 
 // Rate Limiting (Prevent brute force attacks)
 const limiter = rateLimit({
@@ -68,6 +74,8 @@ app.use("/api/zones", zoneRoutes);
 app.use("/api/aisles", aisleRoutes);
 app.use("/api/racks", rackRoutes);
 app.use("/api/bins", binRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
 
 // Inventory
 app.use("/api/products", productRoutes);
