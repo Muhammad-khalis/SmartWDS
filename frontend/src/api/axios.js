@@ -10,7 +10,7 @@ Why we use it:
 */
 
 const api = axios.create({
-  baseURL: "https://smartwds-production.up.railway.app",
+  baseURL:  "https://smartwds-production.up.railway.app",
   headers: {
     "Content-Type": "application/json",
   },
