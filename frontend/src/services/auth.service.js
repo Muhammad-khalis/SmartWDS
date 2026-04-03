@@ -6,7 +6,7 @@ Login API
 
 export const loginUser = async (data) => {
 
-  const response = await api.post("/auth/login", data);
+  const response = awaitapi.post("/api/auth/login", data); 
 
   return response.data;
 };
