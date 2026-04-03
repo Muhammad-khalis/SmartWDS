@@ -36,14 +36,12 @@ const app = express();
 // 🔹 GLOBAL MIDDLEWARES
 // =====================================================
 
-// Parse incoming JSON requests
 app.use(express.json());
 
+// ✅ CORS yahan sahi jagah hai
 app.use(cors());
 
-// Secure HTTP headers
 app.use(helmet());
-
 // Enable CORS (Allow frontend access)
 app.use(
   cors({
