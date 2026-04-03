@@ -39,13 +39,20 @@ const app = express();
 // Parse incoming JSON requests
 app.use(express.json());
 
+app.use(cors());
+
 // Secure HTTP headers
 app.use(helmet());
 
 // Enable CORS (Allow frontend access)
 app.use(
   cors({
-    origin: "https://smartwds-frontend-bker.vercel.app",
+    origin: [
+      "http://localhost:5173",
+      "https://smartwds-frontend.vercel.app",
+      "https://smartwds-frontend-bker.vercel.app",
+      "https://smartwds-frontend-4lo0uik0w-muhammad-khalis-projects-1d24f283.vercel.app"
+    ],
     credentials: true,
   })
 );
