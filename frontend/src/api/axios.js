@@ -1,5 +1,5 @@
 import axios from "axios";
-console.log("✅ AXIOS INSTANCE LOADED"); // 👈 ADD HERE
+
 
 const api = axios.create({
   baseURL: "https://smartwds-production.up.railway.app/api", // ✅ FIXED
