@@ -2,19 +2,23 @@
   "name": "smartwds",
   "version": "1.0.0",
   "description": "Smart warehouse management system",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "engines": {
+    "node": "18.x",
+    "npm": ">=8.x"
+  },
   "keywords": [
     "warehouse",
     "product",
     "retail"
   ],
-  "license": "ISC",
   "author": "Muhammad Khalis",
-  "type": "module",
-  "main": "server.js",
-  "scripts": {
-  "dev": "nodemon server.js"
-  
-},
+  "license": "ISC",
   "dependencies": {
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",

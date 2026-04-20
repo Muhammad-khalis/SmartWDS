@@ -13,10 +13,16 @@ import {
 /**
  * Create Sales Order Controller
  */
+/**
+ * Create Sales Order Controller
+ */
 export const createSalesOrder = async (req, res, next) => {
   try {
     const { error } = createSalesOrderSchema.validate(req.body);
-    if (error) throw new Error(error.details[0].message);
+    if (error) {
+      // HCI Rule: Friendly validation errors
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
 
     const order = await createSalesOrderService(
       req.body,
@@ -25,6 +31,7 @@ export const createSalesOrder = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
+      message: "Sales Order generated successfully. Inventory locked for dispatch.",
       order,
     });
   } catch (err) {

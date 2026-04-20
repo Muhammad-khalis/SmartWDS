@@ -1,6 +1,8 @@
 import express from "express";
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+
+// ⭐ FIX: Added curly braces { } and merged into one import
+// Kyunke authorizeRoles bhi ab auth.middleware.js ke andar hi hai
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
 import {
   createAisle,
@@ -26,5 +28,3 @@ router.put("/:id", protect, authorizeRoles("SuperAdmin"), updateAisle);
 router.delete("/:id", protect, authorizeRoles("SuperAdmin"), deleteAisle);
 
 export default router;
-
-

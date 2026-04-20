@@ -1,12 +1,14 @@
 import express from "express";
-import { registor, login } from "../controllers/auth.controller.js";
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+import { register, login } from "../controllers/auth.controller.js";
+
+// ⭐ FIX 1: Use curly braces { } for named imports
+// ⭐ FIX 2: Ensure path is correct (Humne authorizeRoles ko auth.middleware mein rakha tha)
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 // Register
-router.post("/register", registor); // Fixed spelling
+router.post("/register", register);
 
 // Login
 router.post("/login", login);
@@ -17,7 +19,7 @@ router.get(
   protect,
   authorizeRoles("SuperAdmin"),
   (req, res) => {
-    res.json({ message: "Welcome SuperAdmin" });
+    res.json({ message: "Welcome SuperAdmin!" });
   }
 );
 

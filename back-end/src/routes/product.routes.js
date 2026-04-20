@@ -4,17 +4,17 @@ import {
   getProducts,
   updateProduct,
   deleteProduct,
-  getProductById // ✅ import here
+  getProductById 
 } from "../controllers/product.controller.js";
 
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+// ⭐ FIX: Added curly braces { } and merged into one import
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/", protect, authorizeRoles("SuperAdmin", "WarehouseManager"), createProduct);
 router.get("/", protect, getProducts);
-router.get("/:id", protect, getProductById); // ✅ single product route
+router.get("/:id", protect, getProductById); 
 router.put("/:id", protect, authorizeRoles("SuperAdmin"), updateProduct);
 router.delete("/:id", protect, authorizeRoles("SuperAdmin"), deleteProduct);
 

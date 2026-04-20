@@ -8,10 +8,10 @@ Handles next(error)*/
 
 import { registerUserService, loginUserService } from "../services/auth.service.js";
 
-export const registor= async(req,res,next)=>{
+export const register= async(req,res,next)=>{
   try {
     const user=await registerUserService(req.body);
-    res.status(201).json({success: true, message: "user registor",user})
+    res.status(201).json({success: true, message: "user register",user})
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,8 @@
 import express from "express";
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+
+// ⭐ FIX: Added curly braces { } for named imports
+// Aur authorizeRoles ko bhi isi file se import kar liya
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
 import {
   createBin,

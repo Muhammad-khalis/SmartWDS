@@ -31,16 +31,20 @@ next(err);
 /*
 Get all ledger entries
 */
-export const getAllLedger = async (req, res) => {
+export const getAllLedger = async (req, res, next) => {
+  try {
+    const entries = await Ledger.find()
+      .populate("productId", "name sku")
+      .sort({ createdAt: -1 });
 
-const entries = await Ledger
-.find()
-.populate("productId", "name sku")
-.sort({ createdAt: -1 });
+    // Filter out entries where productId is null (if product was hard-deleted)
+    const validEntries = entries.filter(entry => entry.productId !== null);
 
-res.json({
-success: true,
-data: entries
-});
-
+    res.json({
+      success: true,
+      data: validEntries
+    });
+  } catch (err) {
+    next(err);
+  }
 };

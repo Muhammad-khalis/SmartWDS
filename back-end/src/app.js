@@ -21,28 +21,25 @@ import rackRoutes from "./routes/rack.routes.js";
 import binRoutes from "./routes/bin.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import inboundRoutes from "./routes/inbound.routes.js";
-import outboundRoutes from "./routes/outbound.routes.js"; // ✅ ADDED
+import outboundRoutes from "./routes/outbound.routes.js";
 import ledgerRoutes from "./routes/ledger.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
+import userDataRoutes from "./routes/user.routes.js"; // ⭐ Named properly
 
-
-// Load environment variables from .env
+// Load environment variables
 dotenv.config();
 
 const app = express();
-
 
 // =====================================================
 // 🔹 GLOBAL MIDDLEWARES
 // =====================================================
 
 app.use(express.json());
-
-// ✅ CORS yahan sahi jagah hai
-app.use(cors());
-
 app.use(helmet());
-// Enable CORS (Allow frontend access)
+app.use(morgan("dev"));
+
+// ✅ Cleaned CORS Configuration
 app.use(
   cors({
     origin: [
@@ -55,16 +52,12 @@ app.use(
   })
 );
 
-// Rate Limiting (Prevent brute force attacks)
+// Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
 });
 app.use(limiter);
-
-// HTTP request logger
-app.use(morgan("dev"));
-
 
 // =====================================================
 // 🔹 API ROUTES
@@ -73,43 +66,42 @@ app.use(morgan("dev"));
 // Authentication
 app.use("/api/auth", authRoutes);
 
+// User Management (Fixed variable name)
+app.use("/api/users", userDataRoutes);
+
+// Dashboard
+app.use("/api/dashboard", dashboardRoutes);
+
 // Warehouse Structure
 app.use("/api/warehouses", warehouseRoutes);
 app.use("/api/zones", zoneRoutes);
 app.use("/api/aisles", aisleRoutes);
 app.use("/api/racks", rackRoutes);
 app.use("/api/bins", binRoutes);
-app.use("/api/dashboard", dashboardRoutes);
 
-
-// Inventory
+// Inventory & Products
 app.use("/api/products", productRoutes);
 
 // Inbound Module (GRN / Receiving)
 app.use("/api/inbound", inboundRoutes);
 
-// Outbound Module (Sales Order / Dispatch) ✅
+// Outbound Module (Sales Order / Dispatch)
 app.use("/api/outbound", outboundRoutes);
 
 // Ledger / Stock Audit
 app.use("/api/ledger", ledgerRoutes);
 
+// =====================================================
+// 🔹 404 & ERROR HANDLER
+// =====================================================
 
-// =====================================================
-// 🔹 404 ROUTE HANDLER (If route not found)
-// =====================================================
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
-    message: "Route Not Found",
+    message: `Route Not Found - ${req.originalUrl}`,
   });
 });
 
-
-// =====================================================
-// 🔹 GLOBAL ERROR HANDLER (MUST BE LAST)
-// =====================================================
 app.use(errorHandler);
-
 
 export default app;

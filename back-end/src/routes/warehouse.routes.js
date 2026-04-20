@@ -8,10 +8,11 @@ import {
   deleteWarehouse,
 } from "../controllers/warehouse.controller.js";
 
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+// ⭐ FIX: Add curly braces { } for named imports
+// ⭐ PATH FIX: Ensure both come from auth.middleware if you merged them
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
-const router=express.Router();
+const router = express.Router();
 
 // Routes
 router.post("/", protect, authorizeRoles("SuperAdmin"), createWarehouse);

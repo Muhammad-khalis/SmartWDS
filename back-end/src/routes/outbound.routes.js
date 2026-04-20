@@ -6,30 +6,43 @@ import {
   getSalesOrderById
 } from "../controllers/outbound.controller.js";
 
-import protect from "../middleware/auth.middleware.js";
-import authorizeRoles from "../middleware/role.middleware.js";
+// ⭐ FIX: Named Imports ke liye curly braces { } lazmi hain
+import { protect, authorizeRoles } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// Single Order Route (ID ke sath)
-router.get("/:id", protect, getSalesOrderById);
+/**
+ * OUTBOUND ROUTE ARCHITECTURE
+ */
 
-// Get All Orders (Ab ye 404 nahi dega)
-router.get("/", protect, getSalesOrders);
+// 1. Get All Orders
+router.get(
+  "/", 
+  protect, 
+  authorizeRoles("SuperAdmin", "WarehouseManager", "DispatchManager", "Operator"), 
+  getSalesOrders
+);
 
-// Create & Dispatch Order
+// 2. Single Order
+router.get(
+  "/:id", 
+  protect, 
+  getSalesOrderById
+);
+
+// 3. Create Order
 router.post(
   "/",
   protect,
-  authorizeRoles("SuperAdmin", "WarehouseManager"),
+  authorizeRoles("SuperAdmin", "DispatchManager"), 
   createSalesOrder
 );
 
-// Update Order Status
+// 4. Update Status
 router.patch(
   "/:id/status",
   protect,
-  authorizeRoles("SuperAdmin", "WarehouseManager"),
+  authorizeRoles("SuperAdmin", "DispatchManager", "WarehouseManager"),
   updateSalesOrderStatus
 );
 
