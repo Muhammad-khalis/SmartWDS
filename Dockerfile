@@ -2,7 +2,7 @@ FROM node:lts
 
 WORKDIR /app/back-end
 
-COPY . .
+COPY back-end/ .
 
 RUN npm install
 
