@@ -6,7 +6,7 @@ import { Mail, Lock } from "lucide-react";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Navigation ke liye
 
   const [form, setForm] = useState({
     email: "",
@@ -14,12 +14,15 @@ const Login = () => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
+      setLoading(true);
+
       const cleanForm = {
         email: form.email.trim().toLowerCase(),
         password: form.password
@@ -27,21 +30,22 @@ const Login = () => {
 
       const data = await loginUser(cleanForm);
 
-      if (login) {
-        login(data);
-        navigate("/");
-      }
+      login?.(data);
+      navigate("/");
+
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-cyan-400 px-4">
 
-      <div className="backdrop-blur-lg bg-white/20 border border-white/30 shadow-2xl rounded-2xl p-10 w-full max-w-md">
+      <div className="w-full max-w-md backdrop-blur-xl bg-white/20 border border-white/30 shadow-2xl rounded-2xl p-8 sm:p-10">
 
-        {/* Logo / Title */}
+        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white tracking-wide">
             Smart WDS
@@ -51,72 +55,74 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-500/20 text-white border border-red-300 p-2 rounded mb-4 text-sm text-center">
+          <div className="bg-red-500/20 border border-red-300 text-white text-sm p-3 rounded-lg mb-4 text-center shadow-sm">
             {error}
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
 
           {/* Email */}
-          <div>
-            <label className="text-white text-sm mb-1 block">
-              Email
-            </label>
-
-            <div className="flex items-center bg-white/90 rounded-lg px-3">
-              <Mail size={18} className="text-gray-500" />
-
-              <input
-                type="email"
-                placeholder="Enter your email"
-                required
-                className="w-full px-2 py-2 outline-none bg-transparent"
-                onChange={(e) =>
-                  setForm({ ...form, email: e.target.value })
-                }
-              />
-            </div>
+          <div className="flex items-center bg-white/90 rounded-lg px-3 shadow-sm">
+            <Mail size={18} className="text-gray-500" />
+            <input
+              type="email"
+              value={form.email}
+              placeholder="Email Address"
+              required
+              className="w-full px-2 py-3 bg-transparent outline-none text-gray-800 placeholder-gray-500"
+              onChange={(e) =>
+                setForm({ ...form, email: e.target.value })
+              }
+            />
           </div>
 
           {/* Password */}
-          <div>
-            <label className="text-white text-sm mb-1 block">
-              Password
-            </label>
-
-            <div className="flex items-center bg-white/90 rounded-lg px-3">
-              <Lock size={18} className="text-gray-500" />
-
-              <input
-                type="password"
-                placeholder="Enter your password"
-                required
-                className="w-full px-2 py-2 outline-none bg-transparent"
-                onChange={(e) =>
-                  setForm({ ...form, password: e.target.value })
-                }
-              />
-            </div>
+          <div className="flex items-center bg-white/90 rounded-lg px-3 shadow-sm">
+            <Lock size={18} className="text-gray-500" />
+            <input
+              type="password"
+              value={form.password}
+              placeholder="Password"
+              required
+              className="w-full px-2 py-3 bg-transparent outline-none text-gray-800 placeholder-gray-500"
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+            />
           </div>
 
-          {/* Button */}
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-white text-blue-600 font-semibold py-2 rounded-lg hover:scale-105 transition-transform duration-200 shadow-md"
+            disabled={loading}
+            className="w-full bg-white text-blue-600 font-bold py-3 rounded-lg hover:scale-[1.02] hover:bg-blue-50 transition-all duration-200 shadow-lg disabled:opacity-70 disabled:hover:scale-100 mt-2"
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
         </form>
 
-        <div className="text-center text-white/80 text-sm mt-6">
-          © Smart WDS
+        {/* NEW: Sign Up Section */}
+        <div className="text-center text-white/90 text-sm mt-6">
+          Don't have an account?{" "}
+          <button
+            onClick={() => navigate("/register")}
+            className="text-yellow-300 hover:text-yellow-400 hover:underline font-bold transition-colors"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-white/60 text-xs mt-4">
+          © Smart WDS - Warehouse System
         </div>
 
       </div>
-
     </div>
   );
 };

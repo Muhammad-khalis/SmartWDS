@@ -1,18 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
-import ProtectedRoute from './components/ProtectedRoute.jsx';
+import { Toaster } from "react-hot-toast"; // Toast notifications ke liye
 
 function App() {
-
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  
-  )
+    <BrowserRouter>
+      <AuthProvider>
+        {/* Global Notifications */}
+        <Toaster position="top-right" reverseOrder={false} />
+        
+        {/* All Application Routes */}
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
-export default App
+
+export default App;
