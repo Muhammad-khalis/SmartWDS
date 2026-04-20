@@ -24,12 +24,15 @@ import inboundRoutes from "./routes/inbound.routes.js";
 import outboundRoutes from "./routes/outbound.routes.js";
 import ledgerRoutes from "./routes/ledger.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
-import userDataRoutes from "./routes/user.routes.js"; // ⭐ Named properly
+import userDataRoutes from "./routes/user.routes.js";
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+
+// ⭐ FIX 1: Trust Proxy (Railway/Cloud deployments ke liye lazmi hai)
+app.set('trust proxy', 1);
 
 // =====================================================
 // 🔹 GLOBAL MIDDLEWARES
@@ -39,23 +42,37 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("dev"));
 
-// ✅ Cleaned CORS Configuration
+// ⭐ FIX 2: Dynamic CORS (Har Vercel link ko allow karega)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://smartwds-frontend.vercel.app",
+  "https://smartwds-frontend-bker.vercel.app"
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://smartwds-frontend.vercel.app",
-      "https://smartwds-frontend-bker.vercel.app",
-      "https://smartwds-frontend-4lo0uik0w-muhammad-khalis-projects-1d24f283.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps)
+      if (!origin) return callback(null, true);
+      
+      // Allow if in list OR if it's a vercel preview link
+      if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
-// Rate Limiting
+// ⭐ FIX 3: Rate Limiting with Proxy Validation Fix
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
   max: 100, 
+  validate: { xForwardedForHeader: false }, 
 });
 app.use(limiter);
 
@@ -63,33 +80,23 @@ app.use(limiter);
 // 🔹 API ROUTES
 // =====================================================
 
-// Authentication
 app.use("/api/auth", authRoutes);
-
-// User Management (Fixed variable name)
 app.use("/api/users", userDataRoutes);
-
-// Dashboard
 app.use("/api/dashboard", dashboardRoutes);
-
-// Warehouse Structure
 app.use("/api/warehouses", warehouseRoutes);
 app.use("/api/zones", zoneRoutes);
 app.use("/api/aisles", aisleRoutes);
 app.use("/api/racks", rackRoutes);
 app.use("/api/bins", binRoutes);
-
-// Inventory & Products
 app.use("/api/products", productRoutes);
-
-// Inbound Module (GRN / Receiving)
 app.use("/api/inbound", inboundRoutes);
-
-// Outbound Module (Sales Order / Dispatch)
 app.use("/api/outbound", outboundRoutes);
-
-// Ledger / Stock Audit
 app.use("/api/ledger", ledgerRoutes);
+
+// Root route to check if server is alive
+app.get("/", (req, res) => {
+  res.send("SmartWDS Backend is running successfully!");
+});
 
 // =====================================================
 // 🔹 404 & ERROR HANDLER
